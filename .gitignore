@@ -1,2 +1,4 @@
 *.DS_Store
 *.idea
+c_cnn/data
+*__pycache__
