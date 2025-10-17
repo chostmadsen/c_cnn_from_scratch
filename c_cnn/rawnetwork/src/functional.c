@@ -120,13 +120,13 @@ void flatten(Tensor *tensor) {
  *
  * @param tensor: tensor to be run through argmax.
  *
- * @return: argmax of flat tensor. NULL for invalid tensor. IMPORTANT: ONE INDEXED; ZERO INDICATES FAILURE.
+ * @return: argmax of flat tensor. (size_t) - 1 for invalid tensor.
  */
 size_t argmax(const Tensor *tensor) {
     if (tensor == NULL || tensor->n != 1 || tensor->o != 1) {
         // invalid tensor
         fprintf(stderr, "Invalid tensor: argmax requires a flat tensor.\n");
-        return 0;
+        return (size_t) - 1;
     }
 
     // find argmax
@@ -138,6 +138,5 @@ size_t argmax(const Tensor *tensor) {
             max_idx = idx;
         }
     }
-    // adjust to 1-index
-    return max_idx + 1;
+    return max_idx;
 }

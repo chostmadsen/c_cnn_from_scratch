@@ -417,21 +417,21 @@ Convolutional *read_convolutional(const char *filename) {
  *
  * @param filename: filename.
  *
- * @return: label layer. NULL for any invalid file or internal reading fail.
+ * @return: label layer. (size_t) - 1 for any invalid file or internal reading fail.
  */
 size_t read_label(const char *filename) {
     // get file ptr
     FILE *fp = fopen(filename, "rb");
     if (fp == NULL) {
         fprintf(stderr, "Failed opening file: %s.\n", filename);
-        fclose(fp); return 0;
+        fclose(fp); return (size_t) - 1;
     }
 
     // read label
     size_t value;
     if (fread(&value, sizeof(size_t), 1, fp) != 1) {
         fprintf(stderr, "Failed reading label.\n");
-        fclose(fp); return 0;
+        fclose(fp); return (size_t) - 1;
     }
     fclose(fp); return value;
 }
