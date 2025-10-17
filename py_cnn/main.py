@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torchvision import datasets, transforms
 from network import CNN
+from helpers import write_tensor, write_label
 
 epochs: int = 1_000
 CNN = CNN()
