@@ -111,8 +111,8 @@ Tensor *combine(Tensor **tensors, const size_t num) {
  */
 void flatten(Tensor *tensor) {
     if (tensor == NULL) return;
-    tensor->m = tensor->m * tensor->n * tensor->o;
-    tensor->n = 1; tensor->o = 1;
+    tensor->n = tensor->m * tensor->n * tensor->o;
+    tensor->m = 1; tensor->o = 1;
 }
 
 /**
@@ -123,7 +123,7 @@ void flatten(Tensor *tensor) {
  * @return: argmax of flat tensor. (size_t) - 1 for invalid tensor.
  */
 size_t argmax(const Tensor *tensor) {
-    if (tensor == NULL || tensor->n != 1 || tensor->o != 1) {
+    if (tensor == NULL || tensor->m != 1 || tensor->o != 1) {
         // invalid tensor
         fprintf(stderr, "Invalid tensor: argmax requires a flat tensor.\n");
         return (size_t) - 1;

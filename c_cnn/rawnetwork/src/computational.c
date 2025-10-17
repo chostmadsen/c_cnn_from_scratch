@@ -209,7 +209,7 @@ Tensor *conv(const Tensor *channels, const Kernel *kernels) {
     }
 
     // struct setup
-    res->m = m_res; res->n = n_res; res->o = o;
+    res->m = m_res; res->n = n_res; res->o = 1;
     res->arr = res_arr;
 
     // convolution operation

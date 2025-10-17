@@ -7,8 +7,13 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+void print_tensor_s(const Tensor *tensor) {
+    print_tensor(tensor);
+    printf("\n");
+}
+
 // settings for run parameters
-const size_t DATAPTS = 100;
+const size_t DATAPTS = 1;
 const bool DEBUG = true;
 
 /**
@@ -49,18 +54,24 @@ int main(void) {
         // forward pass
         // conv1, pool1
         Tensor *a1_t = convolution(img, conv1, relu);
+        print_tensor_s(a1_t); // todo: check
         free_tensor(img);
         Tensor *a1 = pool(a1_t, pool1);
+        print_tensor_s(a1); // todo: check
         free_tensor(a1_t);
         // conv2, pool2
         Tensor *a2_t = convolution(a1, conv2, sigmoid);
+        print_tensor_s(a2_t); // todo: check
         free_tensor(a1);
         Tensor *a2 = pool(a2_t, pool2);
+        print_tensor_s(a2); // todo: check
         free_tensor(a2_t);
         // flatten
         flatten(a2);
+        print_tensor_s(a2); // todo: check
         // dense1
         Tensor *yhat = dense(a2, dense1, softmax);
+        print_tensor_s(yhat); // todo: check
         free_tensor(a2);
         if (yhat == NULL) {
             // forward pass fail
@@ -72,7 +83,7 @@ int main(void) {
         if (argmax(yhat) == label) correct++;
         // print current progress
         const float acc = (float)correct / (float)DATAPTS;
-        printf("%zu/%zu pts; %zu/%zu correct; %.4g acc;\n", pt, DATAPTS, correct, pt, acc);
+        printf("\r%zu/%zu pts; %zu/%zu correct; %.4g acc;", pt, DATAPTS, correct, pt, acc);
         if (DEBUG) {
             // print output
             printf("\n\npt %zu\npred: ", pt);
