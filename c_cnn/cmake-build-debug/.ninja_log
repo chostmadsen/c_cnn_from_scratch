@@ -1,0 +1,10 @@
+# ninja log v6
+5	85	1760725918370707294	build.ninja	5262bfc47e54dcac
+5	85	1760725918370707294	/Users/chostmadsen/Desktop/misc/cnn_from_scratch/c_cnn/cmake-build-debug/cmake_install.cmake	5262bfc47e54dcac
+1	38	1760725918377058262	CMakeFiles/c_cnn.dir/rawnetwork/src/main.c.o	adfa2062991d1642
+0	38	1760725918376335687	CMakeFiles/c_cnn.dir/rawnetwork/src/activators.c.o	16abb7a27991cb81
+0	38	1760725918376534559	CMakeFiles/c_cnn.dir/rawnetwork/src/components.c.o	8dc33663d51c1502
+0	39	1760725918376741515	CMakeFiles/c_cnn.dir/rawnetwork/src/functional.c.o	af5c88373f5749d6
+0	39	1760725918376641017	CMakeFiles/c_cnn.dir/rawnetwork/src/computational.c.o	897864a59d10199f
+0	41	1760725918376842681	CMakeFiles/c_cnn.dir/rawnetwork/src/helpers.c.o	fcb4511913a6767d
+41	74	1760725918416965255	c_cnn	63dd54e0fa7ac618
