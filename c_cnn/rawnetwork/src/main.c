@@ -90,29 +90,7 @@ int main_actual(void) {
 }
 
 // testing main file
+// todo: test conv, pool, and dense loading
 int main(void) {
-    for (size_t pt = 0; pt < DATAPTS; pt++) {
-        // setup image and label location
-        char pt_filename[64];
-        char label_filename[64];
-        snprintf(pt_filename, sizeof(pt_filename), "../data/images/img_%zu.bin", pt);
-        snprintf(label_filename, sizeof(label_filename), "../data/labels/img_%zu.bin", pt);
-        // read image and label
-        Tensor *img = read_tensor(pt_filename);
-        const size_t label = read_label(label_filename);
-        if (img == NULL || label == (size_t) - 1) {
-            // error reading img or label
-            fprintf(stderr, "Error reading image data.\n");
-            return 1;
-        }
-
-        if (DEBUG) {
-            // print output
-            printf("pt %zu\nimg: ", pt);
-            print_tensor(img);
-            printf("exp: %zu\n\n\n", label);
-        }
-        free_tensor(img);
-    }
     return 0;
 }
