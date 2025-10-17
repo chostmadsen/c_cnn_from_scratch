@@ -1,0 +1,3 @@
+/Users/chostmadsen/Desktop/misc/cnn_from_scratch/c_cnn/cmake-build-debug/CMakeFiles/c_cnn.dir
+/Users/chostmadsen/Desktop/misc/cnn_from_scratch/c_cnn/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/chostmadsen/Desktop/misc/cnn_from_scratch/c_cnn/cmake-build-debug/CMakeFiles/rebuild_cache.dir
