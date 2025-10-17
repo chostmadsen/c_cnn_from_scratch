@@ -22,7 +22,6 @@ void relu(const Tensor *tens) {
  */
 void sigmoid(const Tensor *tens) {
     for (size_t elm = 0; elm < tens->m * tens->n * tens->o; elm++) {
-        printf("%f ", 1.0 / (1.0 + exp(tens->arr[elm])));
         tens->arr[elm] = (elm_t)(1.0 / (1.0 + exp(-tens->arr[elm])));
     }
 }

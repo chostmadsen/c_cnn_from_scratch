@@ -16,7 +16,7 @@ const bool DEBUG = true;
  *
  * @return: exit code: -1 for model load fail; 1 for run fail; 0 for complete run.
  */
-int main_actual(void) {
+int main(void) {
     // read parameters
     Convolutional *conv1 = read_convolutional("parameters/conv1.bin");
     Pooler *pool1 = read_pool("parameters/pool1.bin");
@@ -70,28 +70,23 @@ int main_actual(void) {
 
         // determine accuracy
         if (argmax(yhat) == label) correct++;
+        // print current progress
+        const float acc = (float)correct / (float)DATAPTS;
+        printf("%zu/%zu pts; %zu/%zu correct; %.4g acc;\n", pt, DATAPTS, correct, pt, acc);
         if (DEBUG) {
             // print output
-            printf("pt %zu\npred: ", pt);
+            printf("\n\npt %zu\npred: ", pt);
             print_tensor(yhat);
             printf("exp: %zu\n\n\n", label);
         }
-        // print current results
-        printf("correct %zu; total %zu; acc %f\n", correct, pt, (float)correct/(float)pt);
         free_tensor(yhat);
     }
 
     // print final results
-    printf("correct %zu; total %zu; acc %f\n", correct, DATAPTS, (float)correct/(float)DATAPTS);
+    printf("\ncorrect %zu; total %zu; acc %.8g;\n", correct, DATAPTS, (float)correct/(float)DATAPTS);
     // free memory and end program
     free_convolutional(conv1); free(pool1);
     free_convolutional(conv2); free(pool2);
     free_dense(dense1);
-    return 0;
-}
-
-// testing main file
-// todo: test conv, pool, and dense loading
-int main(void) {
     return 0;
 }
