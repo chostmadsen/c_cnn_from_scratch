@@ -18,8 +18,8 @@ def bin_mnist(path: str = out_dir, num: int = 1) -> None:
     # load mnist data
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
     # combine mnist data (we love p-hacking)
-    images: NDArray = np.concatenate([x_train, x_test], axis=0).astype(np.float32) / 255.0
-    labels: NDArray = np.concatenate([y_train, y_test], axis=0).astype(np.int32)
+    images: NDArray[np.float32] = np.float32(np.concatenate([x_train, x_test], axis=0).astype(np.float32) / 255.0)
+    labels: NDArray[np.int32] = np.concatenate([y_train, y_test], axis=0).astype(np.int32)
 
 
     # make dirs
@@ -29,10 +29,13 @@ def bin_mnist(path: str = out_dir, num: int = 1) -> None:
     # save bins
     for i, (img, label) in enumerate(zip(images, labels)):
         if i == num: break
+        print(f"\r[  {i}/{data_pts} pts  ]", end="")
         img_file: str = os.path.join(path, "images", f"img_{i}.bin")
         label_file: str = os.path.join(path, "labels", f"img_{i}.bin")
         write_tensor(array=img, file=img_file)
         write_label(label=int(label), file=label_file)
+    print()
+    return None
 
 
 if __name__ == "__main__":
