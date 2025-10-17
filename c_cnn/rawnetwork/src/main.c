@@ -18,7 +18,7 @@ const bool DEBUG = true;
  */
 int main_actual(void) {
     // read parameters
-    Convolutional *conv1 = read_convolutional("../parameters/conv1.bin");
+    Convolutional *conv1 = read_convolutional("parameters/conv1.bin");
     Pooler *pool1 = read_pool("parameters/pool1.bin");
     Convolutional *conv2 = read_convolutional("parameters/conv2.bin");
     Pooler *pool2 = read_pool("parameters/pool2.bin");
