@@ -2,3 +2,4 @@
 *.idea
 c_cnn/data
 *__pycache__
+py_cnn/mnist_torch
