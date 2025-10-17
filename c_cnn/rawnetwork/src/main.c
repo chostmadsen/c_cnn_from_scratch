@@ -76,12 +76,13 @@ int main_actual(void) {
             print_tensor(yhat);
             printf("exp: %zu\n\n\n", label);
         }
+        // print current results
+        printf("correct %zu; total %zu; acc %f\n", correct, pt, (float)correct/(float)pt);
         free_tensor(yhat);
     }
 
-    // print results
+    // print final results
     printf("correct %zu; total %zu; acc %f\n", correct, DATAPTS, (float)correct/(float)DATAPTS);
-
     // free memory and end program
     free_convolutional(conv1); free(pool1);
     free_convolutional(conv2); free(pool2);
