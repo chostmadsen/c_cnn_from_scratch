@@ -6,9 +6,6 @@
 #include "activators.h"
 #include <stdio.h>
 
-// settings for run parameters
-const size_t DATAPTS = 3;
-
 /*--------------------------------------------------------------------------------------------------------------------*/
 
 void print_img_(const Tensor *tensor, const char *label, const size_t label_size) {
@@ -66,17 +63,21 @@ void print_img_(const Tensor *tensor, const char *label, const size_t label_size
  * Main program. Runs forward pass for DATAPTS datapoints.
  *
  * @param argc: num args.
- * @param argv: singular argument. mode to execute; n = normal, d = debug, i = images.
+ * @param argv: two arguments. mode to execute: n = normal, d = debug, i = images; and number of points.
  *
- * @return: exit code: -1 for model load fail; 1 for run fail; 0 for complete run.
+ * @return: exit code: -1 for model load fail; 1 for run fail; 2 for start fail; 0 for complete run.
  */
 int main(const int argc, const char *argv[]) {
     // arguments
-    if (argc != 2) {
-        printf("Usage: %s <mode>\n", argv[0]);
-        return 1;
+    if (argc != 3) {
+        printf("Usage: %s <mode> <number>\n", argv[0]);
+        return 2;
     }
+    // get arguments (we ignore strtol errors here)
     const char mode = argv[1][0];
+    char *ptr;
+    const long val = strtol(argv[2], &ptr, 10);
+    const size_t number = (size_t)val;
 
     // read parameters
     Convolutional *conv1 = read_convolutional("parameters/conv1.bin");
@@ -92,7 +93,7 @@ int main(const int argc, const char *argv[]) {
 
     // testing loop
     size_t correct = 0;
-    for (size_t pt = 0; pt < DATAPTS; pt++) {
+    for (size_t pt = 0; pt < number; pt++) {
         // setup image and label location
         char pt_filename[64];
         char label_filename[64];
@@ -134,8 +135,8 @@ int main(const int argc, const char *argv[]) {
         // debug
         if (mode == 'n') {
             // print current progress
-            const float acc = (float)correct / (float)DATAPTS;
-            printf("\r%zu/%zu points; %zu/%zu correct; %.4g accuracy;", pt, DATAPTS, correct, pt, acc);
+            const float acc = (float)correct / (float)number;
+            printf("\r%zu/%zu points; %zu/%zu correct; %.4g accuracy;", pt, number, correct, pt, acc);
         } else if (mode == 'd') {
             // print output
             printf("expected %zu; raw output [", label);
@@ -158,7 +159,7 @@ int main(const int argc, const char *argv[]) {
     }
 
     // print final results
-    printf("\nend; %zu correct; %zu total; %.8g accuracy;\n", correct, DATAPTS, (float)correct/(float)DATAPTS);
+    printf("\nend; %zu correct; %zu total; %.8g accuracy;\n", correct, number, (float)correct/(float)number);
     // free memory and end program
     free_convolutional(conv1); free(pool1);
     free_convolutional(conv2); free(pool2);
