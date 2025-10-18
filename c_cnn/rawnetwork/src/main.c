@@ -7,7 +7,7 @@
 #include <stdio.h>
 
 // settings for run parameters
-const size_t DATAPTS = 5;
+const size_t DATAPTS = 3;
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 
