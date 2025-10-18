@@ -2,7 +2,12 @@
 #include "types.h"
 #include "activators.h"
 
-#include <stdio.h>
+/**
+ * No-op for testing.
+ *
+ * @param tens: reference tensor.
+ */
+void noop(const Tensor *tens) {}
 
 /**
  * Rectified Linear Unit (ReLU) applied element-wise on a tensor.

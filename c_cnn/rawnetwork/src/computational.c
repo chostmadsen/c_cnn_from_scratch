@@ -58,7 +58,8 @@ static void conv_(const Tensor *targ, const elm_t *main, const Tensor *t_main,
     for (size_t row = 0; row < targ->m; row++) {
         for (size_t col = 0; col < targ->n; col++) {
             // dot product
-            targ->arr[row * targ->n + col] += cdot_(main, t_main, kernel, k_kernel, row, col) + k_kernel->bias;
+            const size_t row_s = row * k_kernel->m_stride, col_s = col * k_kernel->n_stride;
+            targ->arr[row * targ->n + col] += cdot_(main, t_main, kernel, k_kernel, row_s, col_s) + k_kernel->bias;
         }
     }
 }
@@ -68,7 +69,8 @@ static void pool_(elm_t *targ, const Tensor *t_targ, const elm_t *main, const Te
     for (size_t row = 0; row < t_targ->m; row++) {
         for (size_t col = 0; col < t_targ->n; col++) {
             // max pool
-            targ[row * t_targ->n + col] = max_pool_(main, t_main, pooler, row, col);
+            const size_t row_s = row * pooler->m_stride, col_s = col * pooler->n_stride;
+            targ[row * t_targ->n + col] = max_pool_(main, t_main, pooler, row_s, col_s);
         }
     }
 }
@@ -199,7 +201,7 @@ Tensor *conv(const Tensor *channels, const Kernel *kernels) {
 
     // malloc
     const size_t out_size = m_res * n_res;
-    elm_t *res_arr = calloc(out_size * sizeof(elm_t), sizeof(elm_t));
+    elm_t *res_arr = calloc(out_size, sizeof(elm_t));
     Tensor *res = malloc(sizeof(Tensor));
     if (res_arr == NULL || res == NULL) {
         // malloc fail
@@ -246,7 +248,7 @@ Tensor *pool(const Tensor *main, const Pooler *pooler) {
 
     // malloc
     const size_t out_size = m_res * n_res * o;
-    elm_t *res_arr = calloc(out_size * sizeof(elm_t), sizeof(elm_t));
+    elm_t *res_arr = calloc(out_size, sizeof(elm_t));
     Tensor *res = malloc(sizeof(Tensor));
     if (res_arr == NULL || res == NULL) {
         // malloc fail

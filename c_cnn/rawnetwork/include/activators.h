@@ -3,6 +3,8 @@
 
 #include "types.h"
 
+void noop(const Tensor *tens);
+
 void relu(const Tensor *tens);
 
 void sigmoid(const Tensor *tens);
