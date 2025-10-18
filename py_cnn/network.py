@@ -12,7 +12,7 @@ class CNN(nn.Module):
         self.pool1: nn.MaxPool2d = nn.MaxPool2d(kernel_size=2, stride=2)
         self.conv2: nn.Conv2d = nn.Conv2d(in_channels=2, out_channels=4, kernel_size=3, stride=1)
         self.pool2: nn.MaxPool2d = nn.MaxPool2d(kernel_size=2, stride=2)
-        self.dense: nn.Linear = nn.Linear(in_features=4 * 5 * 5, out_features=10, bias=True)
+        self.dense1: nn.Linear = nn.Linear(in_features=4 * 5 * 5, out_features=10, bias=True)
 
     def forward(self, x) -> torch.Tensor:
         r"""
@@ -27,5 +27,5 @@ class CNN(nn.Module):
         x = f.sigmoid(self.conv2(x))
         x = self.pool2(x)
         x = torch.flatten(x, 1)
-        x = self.dense(x)
+        x = self.dense1(x)
         return x

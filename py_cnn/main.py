@@ -96,10 +96,13 @@ def main() -> None:
     write_pool(dims=(2, 2), stride=(2, 2), file=os.path.join(param_dir, "pool2.bin"))
     # dense1
     write_dense(
-        weights=params["dense.weight"],
-        biases=params["dense.bias"],
+        weights=params["dense1.weight"],
+        biases=params["dense1.bias"],
         file=os.path.join(param_dir, "dense1.bin")
     )
+
+    # write dict
+    torch.save(model.state_dict(), os.path.join(os.path.dirname(__file__), "parameters_torch", "params.pth"))
 
     return None
 
