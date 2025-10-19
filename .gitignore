@@ -1,5 +1,15 @@
+# apple stuff
 *.DS_Store
+# jetbrains stuff
 *.idea
+
+# huge data files
 c_cnn/data
-*__pycache__
 py_cnn/mnist_torch
+
+# pycache
+*__pycache__
+
+# compiled stuff
+c_cnn/cmake-build-debug/
+c_cnn/rawnetwork/build/
