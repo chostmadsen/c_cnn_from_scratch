@@ -6,64 +6,11 @@
 #include "activators.h"
 #include <stdio.h>
 
-/*--------------------------------------------------------------------------------------------------------------------*/
-
-void print_img_(const Tensor *tensor, const char *label, const size_t label_size) {
-    const size_t stretch = 2;
-
-    if (tensor->o != 1 || tensor->n - 2 < label_size) {
-        // invalid image
-        fprintf(stderr, "Image error: invalid image.\n");
-        return;
-    }
-
-    // set up image vis
-    char img_vis[tensor->m * stretch * tensor->n + 1];
-    img_vis[tensor->m * stretch * tensor->n] = '\0';
-    // interpret image
-    for (size_t i = 0; i < tensor->m; i++) {
-        for (size_t j = 0; j < tensor->n; j++) {
-            // reference brightness
-            const char ref[] = " .,:-+=%$#";
-            // char reference
-            const char img_char = ref[(int)(tensor->arr[i * tensor->n + j] * 10 - 1e-4)];
-            // set img
-            for (size_t k = 0; k < stretch; k++) {
-                img_vis[i * stretch * tensor->n + stretch * j + k] = img_char;
-            }
-        }
-    }
-    // set label
-    for (size_t idx = 0; idx < label_size; idx++) {
-        img_vis[(tensor->m - 1) * stretch * tensor->n + idx + (stretch * tensor->n - label_size)] = label[idx];
-    }
-
-    // print image
-    // box
-    printf("+");
-    for (size_t j = 0; j < stretch * tensor->n; j++) printf("-");
-    printf("+\n");
-    // image
-    for (size_t i = 0; i < tensor->m; i++) {
-        printf("|");
-        for (size_t j = 0; j < stretch * tensor->n; j++) {
-            printf("%c", img_vis[i * stretch * tensor->n + j]);
-        }
-        printf("|\n");
-    }
-    // box
-    printf("+");
-    for (size_t j = 0; j < stretch * tensor->n; j++) printf("-");
-    printf("+\n");
-}
-
-/*--------------------------------------------------------------------------------------------------------------------*/
-
 /**
  * Main program. Runs forward pass for DATAPTS datapoints.
  *
  * @param argc: num args.
- * @param argv: two arguments. mode to execute: n = normal, d = debug, i = images; and number of points.
+ * @param argv: two arguments. mode to execute: n=normal, d=debug, i=images, f=full images; and number of points.
  *
  * @return: exit code: -1 for model load fail; 1 for run fail; 2 for start fail; 0 for complete run.
  */
@@ -108,15 +55,31 @@ int main(const int argc, const char *argv[]) {
             return 1;
         }
 
+        // full loop label
+        if (mode == 'f') {
+            char loop_label[32];
+            snprintf(loop_label, sizeof(loop_label), "\niteration %zu\n", pt + 1);
+            printf("%s", loop_label);
+            char img_label[8];
+            snprintf(img_label, sizeof(img_label), "%zu", label);
+            vis_tensor(img, img_label, 1, 1);
+        }
+
         // forward pass
         // conv1, pool1
-        Tensor *a1_t = convolution(img, conv1, noop);
+        Tensor *a1_t = convolution(img, conv1, relu);
         Tensor *a1 = pool(a1_t, pool1);
+        // full vis
+        if (mode == 'f') vis_tensor(a1_t, "a1_t", 1, 1);
+        if (mode == 'f') vis_tensor(a1, "a1", 1, 1);
         free_tensor(a1_t);
         // conv2, pool2
         Tensor *a2_t = convolution(a1, conv2, sigmoid);
         free_tensor(a1);
+        // full vis
         Tensor *a2 = pool(a2_t, pool2);
+        if (mode == 'f') vis_tensor(a2_t, "a2_t", 1, 1);
+        if (mode == 'f') vis_tensor(a2, "a2", 1, 1);
         free_tensor(a2_t);
         // flatten
         flatten(a2);
@@ -132,11 +95,10 @@ int main(const int argc, const char *argv[]) {
         if (argmax(yhat) == label) correct++;
 
         // terminal outputs
-        // debug
         if (mode == 'n') {
             // print current progress
-            const float acc = (float)correct / (float)pt;
-            printf("\r%zu/%zu points; %zu/%zu correct; %.4g accuracy;", pt, number, correct, pt, acc);
+            const float acc = (float)correct / (float)(pt + 1);
+            printf("\r%zu/%zu points; %zu/%zu correct; %.4g%% accuracy;", pt + 1, number, correct, pt + 1, 100 * acc);
         } else if (mode == 'd') {
             // print output
             printf("expected %zu; raw output [", label);
@@ -146,20 +108,37 @@ int main(const int argc, const char *argv[]) {
             printf("%f];\n", yhat->arr[yhat->n - 1]);
         } else if (mode == 'i') {
             // print image
-            size_t label_size = snprintf(NULL, 0, "[yhat %zu | y %zu]", argmax(yhat), label);
-            char img_label[label_size];
-            snprintf(img_label, label_size + 1, "[yhat %zu | y %zu]", argmax(yhat), label);
+            char img_label[64];
+            snprintf(img_label, sizeof(img_label), "[yhat %zu | y %zu]", argmax(yhat), label);
             printf("\n");
-            print_img_(img, img_label, label_size);
+            vis_tensor(img, img_label, 2, 1);
         }
+        if (mode == 'f') vis_tensor(yhat, "0123456789", 1, 1);
 
         // free
         free_tensor(img);
         free_tensor(yhat);
     }
 
+    if (mode == 'f') {
+        printf("\nparameter visualization\n");
+
+        // vis conv1
+        printf("\nconv1\n");
+        vis_conv(conv1, 1, 1);
+
+        // vis conv2
+        printf("\nconv2\n");
+        vis_conv(conv2, 1, 1);
+
+        // vis dense1
+        printf("\ndense1\n");
+        vis_dense(dense1, 1, 1);
+    }
+
     // print final results
-    printf("\nend; %zu correct; %zu total; %.8g accuracy;\n", correct, number, (float)correct/(float)number);
+    const float acc = (float)correct / (float)number;
+    printf("\nend: %zu correct; %zu total; %.4g%% accuracy;\n", correct, number, 100 * acc);
     // free memory and end program
     free_convolutional(conv1); free(pool1);
     free_convolutional(conv2); free(pool2);

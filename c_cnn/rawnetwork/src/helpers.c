@@ -1,7 +1,10 @@
 #include <stdio.h>
+#include <stdbool.h>
 #include "types.h"
 #include "functional.h"
 #include "helpers.h"
+
+#include <string.h>
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 
@@ -119,6 +122,64 @@ Kernel *read_kernel_(FILE *fp) {
     kernel->m_stride = m_stride; kernel->n_stride = n_stride; kernel->bias = bias;
     kernel->arr = arr;
     return kernel;
+}
+
+elm_t max_val_(const elm_t *arr, const size_t size) {
+    elm_t max_val = arr[0];
+    for (size_t elm = 1; elm < size; elm++) {
+        if (arr[elm] > max_val) max_val = arr[elm];
+    }
+    return max_val;
+}
+
+elm_t min_val_(const elm_t *arr, const size_t size) {
+    elm_t min_val = arr[0];
+    for (size_t elm = 1; elm < size; elm++) {
+        if (arr[elm] < min_val) min_val = arr[elm];
+    }
+    return min_val;
+}
+
+char *vis_mat_(const elm_t *mat, const Tensor *tens) {
+    // setup out str
+    char *out_str = malloc(tens->m * tens->n * sizeof(char) + 1);
+    if (out_str == NULL) {
+        fprintf(stderr, "Failed malloc: str of size %zu.\n", tens->m * tens->n + 1);
+        return NULL;
+    }
+    out_str[tens->m * tens->n] = '\0';
+
+    // setup reference
+    const elm_t max_val = max_val_(mat, tens->m * tens->n);
+    elm_t min_val = min_val_(mat, tens->m * tens->n);
+    if (min_val < 0.0) min_val = -min_val;
+    const elm_t max_abs_val = max_val > min_val ? max_val : min_val;
+
+    // create out str
+    for (size_t elm = 0; elm < tens->m * tens->n; elm++) {
+        const char ref[] = " .,:-+=%$#";
+        // abs elm
+        const elm_t ref_elm = 0 < mat[elm] ? mat[elm] : -mat[elm];
+        // scale elm
+        const elm_t elm_adj = (elm_t)(ref_elm / max_abs_val * 10 - 1e-06);
+        out_str[elm] = ref[(int)elm_adj];
+    }
+    return out_str;
+}
+
+bool *sgn_mat_(const elm_t *mat, const Tensor *tens) {
+    // setup out arr
+    bool *sgn_arr = malloc(tens->m * tens->n * sizeof(bool));
+    if (sgn_arr == NULL) {
+        fprintf(stderr, "Failed malloc: arr of size %zu.\n", tens->m * tens->n);
+        return NULL;
+    }
+
+    // create sgn arr
+    for (size_t elm = 0; elm < tens->m * tens->n; elm++) {
+        sgn_arr[elm] = 0 < mat[elm];
+    }
+    return sgn_arr;
 }
 
 /*--------------------------------------------------------------------------------------------------------------------*/
@@ -434,4 +495,100 @@ size_t read_label(const char *filename) {
         fclose(fp); return (size_t) - 1;
     }
     fclose(fp); return value;
+}
+
+/**
+ * Visualizes a tensor with an image.
+ *
+ * @param tens: tensor.
+ * @param label: image label.
+ * @param h_stretch: image horizontal stretch.
+ * @param v_stretch: image vertical stretch.
+ */
+void vis_tensor(const Tensor *tens, const char *label, const size_t h_stretch, const size_t v_stretch) {
+    // print top
+    printf("+");
+    for (size_t j = 0; j < h_stretch * tens->n; j++) printf("-");
+    printf("+\n");
+
+    // print tensors
+    for (size_t mat = 0; mat < tens->o; mat++) {
+        // setup arrs
+        char *str_arr = vis_mat_(&tens->arr[mat * tens->m * tens->n], tens);
+        bool *sgn_arr = sgn_mat_(&tens->arr[mat * tens->m * tens->n], tens);
+
+        for (size_t row = 0; row < tens->m; row++) { for (size_t _v = 0; _v < v_stretch; _v++) {
+            // border
+            printf("|");
+            for (size_t col = 0; col < tens->n; col++) { for (size_t _h = 0; _h < h_stretch; _h++) {
+                const size_t elm = row * tens->n + col;
+                // color
+                sgn_arr[elm] ? printf("\x1b[0m") : printf("\x1b[37m");
+                // element
+                printf("%c\x1b[0m", str_arr[elm]);
+            }}
+            // border
+            printf("|\n");
+        }}
+
+        // seperator
+        if (mat + 1 != tens->o) {
+            printf("+");
+            for (size_t j = 0; j < h_stretch * tens->n; j++) printf("-");
+            printf("+\n");
+        }
+
+        // free arrs
+        free(str_arr); free(sgn_arr);
+    }
+
+    // bottom
+    const size_t label_size = strlen(label);
+    printf("+");
+    const size_t center = (h_stretch * tens->n - label_size) / 2;
+    for (size_t b = 0; b < center; b++) printf("-");
+    // label
+    printf("%s", label);
+    for (size_t b = 0; b < h_stretch * tens->n - center - label_size; b++) printf("-");
+    printf("+\n");
+}
+
+/**
+ * Visualizes a dense layer with an image.
+ *
+ * @param dense: dense layer.
+ * @param h_stretch: image horizontal stretch.
+ * @param v_stretch: image vertical stretch.
+ */
+void vis_dense(const Dense *dense, const size_t h_stretch, const size_t v_stretch) {
+    // vis weights and biases
+    vis_tensor(dense->weights, "w", h_stretch, v_stretch);
+    vis_tensor(dense->biases, "b", h_stretch, v_stretch);
+}
+
+/**
+ * Visualizes a convolutional layer with an image.
+ *
+ * @param conv: convolutional layer.
+ * @param h_stretch: image horizontal stretch.
+ * @param v_stretch: image vertical stretch.
+ */
+void vis_conv(const Convolutional *conv, const size_t h_stretch, const size_t v_stretch) {
+    // vis kernels
+    const size_t m_k = conv->kernels[0]->m, n_k = conv->kernels[0]->n, o_k = conv->kernels[0]->o;
+    for (size_t elm = 0; elm < conv->num; elm++) {
+        // setup tensors
+        elm_t *kern_arr = conv->kernels[elm]->arr;
+        Tensor kern_t = {.m=m_k, .n=n_k, .o=o_k, .arr=kern_arr};
+        // setup label
+        char img_label[8];
+        snprintf(img_label, sizeof(img_label), "k%zu", elm + 1);
+        vis_tensor(&kern_t, img_label, h_stretch, v_stretch);
+    }
+
+    // vis biases
+    elm_t biases[conv->num];
+    for (size_t b = 0; b < conv->num; b++) biases[b] = conv->kernels[b]->bias;
+    const Tensor kern_b = {.m=1, .n=conv->num, .o=1, .arr=biases};
+    vis_tensor(&kern_b, "b", 1, 1);
 }

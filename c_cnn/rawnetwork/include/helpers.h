@@ -23,4 +23,10 @@ Convolutional *read_convolutional(const char *filename);
 
 size_t read_label(const char *filename);
 
+void vis_tensor(const Tensor *tens, const char *label, size_t h_stretch, size_t v_stretch);
+
+void vis_dense(const Dense *dense, size_t h_stretch, size_t v_stretch);
+
+void vis_conv(const Convolutional *conv, size_t h_stretch, size_t v_stretch);
+
 #endif // HELPERS_H
