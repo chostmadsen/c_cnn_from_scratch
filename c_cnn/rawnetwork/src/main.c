@@ -83,6 +83,7 @@ int main(const int argc, const char *argv[]) {
         free_tensor(a2_t);
         // flatten
         flatten(a2);
+        if (mode == 'f') vis_tensor(a2, "a2_f", 1, 1);
         // dense1
         Tensor *yhat = dense(a2, dense1, softmax);
         free_tensor(a2);
