@@ -135,7 +135,7 @@ int main(const int argc, const char *argv[]) {
         // debug
         if (mode == 'n') {
             // print current progress
-            const float acc = (float)correct / (float)number;
+            const float acc = (float)correct / (float)pt;
             printf("\r%zu/%zu points; %zu/%zu correct; %.4g accuracy;", pt, number, correct, pt, acc);
         } else if (mode == 'd') {
             // print output
