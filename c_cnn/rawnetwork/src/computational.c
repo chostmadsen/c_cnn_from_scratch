@@ -190,7 +190,7 @@ Tensor *conv(const Tensor *channels, const Kernel *kernels) {
     const size_t o = channels->o;
 
     // dimensionality check
-    if (o != kernels->o || m < kernels->m || n < kernels->n) {
+    if (o != kernels->o || m < m_k || n < n_k) {
         fprintf(stderr, "Invalid convolution: oversized kernel or channels (%zu) != kernels (%zu).\n", o, kernels->o);
         return NULL;
     }
@@ -234,7 +234,6 @@ Tensor *pool(const Tensor *main, const Pooler *pooler) {
     // dimension setup
     const size_t m = main->m;
     const size_t n = main->n;
-    const size_t o = main->o;
 
     // dimensionality check
     if (main->m < pooler->m || main->n < pooler->n) {
@@ -243,12 +242,12 @@ Tensor *pool(const Tensor *main, const Pooler *pooler) {
     }
 
     // result dimension setup
-    const size_t m_res = (m - pooler->m) / pooler->m_stride + 1;
-    const size_t n_res = (n - pooler->n) / pooler->n_stride + 1;
+    const size_t m_res = (main->m - pooler->m) / pooler->m_stride + 1;
+    const size_t n_res = (main->n - pooler->n) / pooler->n_stride + 1;
 
     // malloc
-    const size_t out_size = m_res * n_res * o;
-    elm_t *res_arr = calloc(out_size, sizeof(elm_t));
+    const size_t out_size = m_res * n_res * main->o;
+    elm_t *res_arr = malloc(out_size * sizeof(elm_t));
     Tensor *res = malloc(sizeof(Tensor));
     if (res_arr == NULL || res == NULL) {
         // malloc fail
@@ -258,12 +257,12 @@ Tensor *pool(const Tensor *main, const Pooler *pooler) {
     }
 
     // struct setup
-    res->m = m_res; res->n = n_res; res->o = o;
+    res->m = m_res; res->n = n_res; res->o = main->o;
     res->arr = res_arr;
 
     // pooling operation
-    for (size_t mat = 0; mat < o; mat++) {
-        pool_(&res->arr[mat * m_res * n_res], res, &main->arr[mat * m_res * n_res], main, pooler);
+    for (size_t mat = 0; mat < main->o; mat++) {
+        pool_(&res->arr[mat * m_res * n_res], res, &main->arr[mat * m * n], main, pooler);
     }
     return res;
 }

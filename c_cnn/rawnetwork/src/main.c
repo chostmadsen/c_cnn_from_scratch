@@ -166,29 +166,3 @@ int main(const int argc, const char *argv[]) {
     free_dense(dense1);
     return 0;
 }
-
-int main_test(void) {
-    const int m = 4, n = 4, o = 1;
-    const int m_k = 2, n_k = 2, o_k = 1;
-    elm_t *kern = malloc(m_k * n_k * o_k * sizeof(elm_t));
-    elm_t *tens = malloc(m * n * o * sizeof(elm_t));
-    for (int num = 0; num < m * n * o; num++) {
-        tens[num] = (elm_t)num;
-    }
-    for (int num = 0; num < m_k * n_k * o_k; num++) {
-        kern[num] = (elm_t)num;
-    }
-    // todo: stride is broken
-    const Tensor tensor = {.n=n, .m=m, .o=o, .arr=tens};
-    const Kernel kernel = {.m=m_k, .n=n_k, .o=o_k, .m_stride=2, .n_stride=2, .bias=0, .arr=kern};
-    print_tensor(&tensor);
-    print_kernel(&kernel);
-
-    const Tensor *out = conv(&tensor, &kernel);
-    print_tensor(out);
-
-    // fuck you linter
-    free(kern);
-    free(tens);
-    return 0;
-}

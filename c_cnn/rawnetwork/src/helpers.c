@@ -19,7 +19,7 @@ static void print_arr_(const elm_t *arr, const size_t m, const size_t n, const s
             for (size_t elm = 0; elm < n; elm++) {
                 // spaced elm
                 printf("%f", arr[mat * m * n + row * n + elm]);
-                if (elm + 1 != n) printf("  \t");
+                if (elm + 1 != n) printf(" \t");
             }
             printf("]");
             if (row + 1 != m) {
