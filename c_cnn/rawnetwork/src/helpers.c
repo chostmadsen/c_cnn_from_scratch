@@ -150,8 +150,9 @@ char *vis_mat_(const elm_t *mat, const Tensor *tens) {
     out_str[tens->m * tens->n] = '\0';
 
     // setup reference
-    const elm_t max_val = max_val_(mat, tens->m * tens->n);
+    elm_t max_val = max_val_(mat, tens->m * tens->n);
     elm_t min_val = min_val_(mat, tens->m * tens->n);
+    if (max_val < 0.0) max_val = -max_val;
     if (min_val < 0.0) min_val = -min_val;
     const elm_t max_abs_val = max_val > min_val ? max_val : min_val;
 
@@ -562,8 +563,10 @@ void vis_tensor(const Tensor *tens, const char *label, const size_t h_stretch, c
  */
 void vis_dense(const Dense *dense, const size_t h_stretch, const size_t v_stretch) {
     // vis weights and biases
-    vis_tensor(dense->weights, "w", h_stretch, v_stretch);
+    Tensor *w_transpose = transpose(dense->weights);
+    vis_tensor(w_transpose, "w^T", h_stretch, v_stretch);
     vis_tensor(dense->biases, "b", h_stretch, v_stretch);
+    free_tensor(w_transpose);
 }
 
 /**
@@ -590,5 +593,5 @@ void vis_conv(const Convolutional *conv, const size_t h_stretch, const size_t v_
     elm_t biases[conv->num];
     for (size_t b = 0; b < conv->num; b++) biases[b] = conv->kernels[b]->bias;
     const Tensor kern_b = {.m=1, .n=conv->num, .o=1, .arr=biases};
-    vis_tensor(&kern_b, "b", 1, 1);
+    vis_tensor(&kern_b, "b", 1, v_stretch);
 }

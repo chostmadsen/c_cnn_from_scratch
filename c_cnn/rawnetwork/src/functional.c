@@ -105,6 +105,42 @@ Tensor *combine(Tensor **tensors, const size_t num) {
 }
 
 /**
+ * Transposes a tensor.
+ * Caller is responsible for freeing returned tensor & array.
+ *
+ * @param tens: tensor to transpose.
+ * @return: transposed tensor.
+ */
+Tensor *transpose(const Tensor *tens) {
+    // dimension setup
+    const size_t m = tens->m;
+    const size_t n = tens->n;
+    const size_t o = tens->o;
+
+    // malloc
+    elm_t *res_arr = malloc(m * n * o * sizeof(elm_t));
+    Tensor *res = malloc(sizeof(Tensor));
+    if (res_arr == NULL || res == NULL) {
+        fprintf(stderr, "Failed malloc: Tensor sized %zu x %zu x %zu.\n", n, m, o);
+        free(res_arr); free(res);
+        return NULL;
+    }
+    // struct setup
+    res->m = n; res->n = m; res->o = o;
+    res->arr = res_arr;
+
+    for (size_t mat = 0; mat < o; mat++) {
+        // transpose matrix
+        for (size_t row = 0; row < m; row++) {
+            for (size_t col = 0; col < n; col++) {
+                res->arr[n * m * mat + m * col + row] = tens->arr[m * n * mat + n * row + col];
+            }
+        }
+    }
+    return res;
+}
+
+/**
  * Flattens a tensor. If tensor is NULL, passes.
  *
  * @param tensor: tensor to be flattened.

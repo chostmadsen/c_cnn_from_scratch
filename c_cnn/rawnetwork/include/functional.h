@@ -13,6 +13,8 @@ void free_convolutional(Convolutional *convolutional);
 
 Tensor *combine(Tensor **tensors, size_t num);
 
+Tensor *transpose(const Tensor *tens);
+
 void flatten(Tensor *tensor);
 
 size_t argmax(const Tensor *tensor);
