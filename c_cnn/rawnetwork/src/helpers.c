@@ -507,6 +507,13 @@ size_t read_label(const char *filename) {
  * @param v_stretch: image vertical stretch.
  */
 void vis_tensor(const Tensor *tens, const char *label, const size_t h_stretch, const size_t v_stretch) {
+    // label verification
+    const size_t label_size = strlen(label);
+    if (h_stretch * tens->n < label_size) {
+        fprintf(stderr, "Oversized label: maximum label size %zu.\n", h_stretch * tens->n - 1);
+        return;
+    }
+
     // print top
     printf("+");
     for (size_t j = 0; j < h_stretch * tens->n; j++) printf("-");
@@ -544,7 +551,6 @@ void vis_tensor(const Tensor *tens, const char *label, const size_t h_stretch, c
     }
 
     // bottom
-    const size_t label_size = strlen(label);
     printf("+");
     const size_t center = (h_stretch * tens->n - label_size) / 2;
     for (size_t b = 0; b < center; b++) printf("-");

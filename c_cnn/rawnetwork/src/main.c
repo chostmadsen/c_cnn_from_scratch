@@ -60,8 +60,8 @@ int main(const int argc, const char *argv[]) {
             char loop_label[32];
             snprintf(loop_label, sizeof(loop_label), "\niteration %zu\n", pt + 1);
             printf("%s", loop_label);
-            char img_label[8];
-            snprintf(img_label, sizeof(img_label), "[%zu]", label);
+            char img_label[32];
+            snprintf(img_label, sizeof(img_label), "[x | yhat %zu]", label);
             vis_tensor(img, img_label, 2, 1);
         }
 
@@ -70,20 +70,20 @@ int main(const int argc, const char *argv[]) {
         Tensor *a1_t = convolution(img, conv1, relu);
         Tensor *a1 = pool(a1_t, pool1);
         // full vis
-        if (mode == 'f') vis_tensor(a1_t, "a1_t", 2, 1);
-        if (mode == 'f') vis_tensor(a1, "a1", 2, 1);
+        if (mode == 'f') vis_tensor(a1_t, "[a1]", 2, 1);
+        if (mode == 'f') vis_tensor(a1, "[pool  a1]", 2, 1);
         free_tensor(a1_t);
         // conv2, pool2
         Tensor *a2_t = convolution(a1, conv2, sigmoid);
         free_tensor(a1);
         // full vis
         Tensor *a2 = pool(a2_t, pool2);
-        if (mode == 'f') vis_tensor(a2_t, "a2_t", 2, 1);
-        if (mode == 'f') vis_tensor(a2, "a2", 2, 1);
+        if (mode == 'f') vis_tensor(a2_t, "[a2]", 2, 1);
+        if (mode == 'f') vis_tensor(a2, "[pool  a2]", 2, 1);
         free_tensor(a2_t);
         // flatten
         flatten(a2);
-        if (mode == 'f') vis_tensor(a2, "a2_f", 1, 1);
+        if (mode == 'f') vis_tensor(a2, "[flat  a2]", 1, 1);
         // dense1
         Tensor *yhat = dense(a2, dense1, softmax);
         free_tensor(a2);
