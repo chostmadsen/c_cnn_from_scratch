@@ -13,3 +13,4 @@ py_cnn/mnist_torch
 # compiled stuff
 c_cnn/cmake-build-debug/
 c_cnn/rawnetwork/build/
+c_cnn/rawnetwork/main
