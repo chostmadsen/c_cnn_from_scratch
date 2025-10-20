@@ -61,7 +61,7 @@ int main(const int argc, const char *argv[]) {
             snprintf(loop_label, sizeof(loop_label), "\niteration %zu\n", pt + 1);
             printf("%s", loop_label);
             char img_label[32];
-            snprintf(img_label, sizeof(img_label), "[x | yhat %zu]", label);
+            snprintf(img_label, sizeof(img_label), "[x | y%zu]", label);
             vis_tensor(img, img_label, 2, 1);
         }
 
